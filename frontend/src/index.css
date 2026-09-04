@@ -1,0 +1,1162 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&family=Jost:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+/* Site-wide corner-radius scale — normalizes every rounded-* utility (used
+   on buttons, cards, inputs, modals, admin panels) to one consistent,
+   predictable set of sizes instead of the mixed 6/8/12/16/24px values that
+   crept in across different components over time. Nothing needs to change
+   at the component level — every existing rounded-lg / rounded-xl /
+   rounded-2xl / rounded-3xl className site + admin-wide now resolves through
+   this shared scale automatically. */
+@theme {
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 16px;
+}
+
+
+@font-face {
+  font-family: "Coolvetica";
+  src: url("./assets/Coolvetica_Rg.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+.font-coolvetica {
+  font-family: "Coolvetica", -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+}
+
+.font-baloo {
+  font-family: "Baloo 2", -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+}
+
+.font-jost {
+  font-family: "Jost", -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+}
+
+/* Every actionable control gets a pointer cursor + a small tactile press,
+   so it's always visually obvious what's clickable across the storefront
+   and the admin panel — including plain <button> elements that don't
+   already set their own cursor class. */
+button:not(:disabled),
+[role="button"]:not(:disabled),
+a,
+select,
+input[type="checkbox"],
+input[type="radio"],
+input[type="file"] + label {
+  cursor: pointer;
+}
+button:disabled,
+[role="button"][aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+@theme {
+  --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ==========================================================================
+   3DCASEMAKERS — iOS "Liquid Glass" design system
+   Reusable glass surfaces (light + dark), specular edges, soft ambient
+   background and glass-friendly form controls used across site + admin.
+   ========================================================================== */
+
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-bg-strong: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(24, 24, 27, 0.08);
+  --glass-shadow: 0 8px 32px rgba(24, 24, 27, 0.08), 0 1px 1px rgba(24, 24, 27, 0.04);
+  --glass-dark-bg: rgba(24, 24, 27, 0.55);
+  --glass-dark-border: rgba(255, 255, 255, 0.12);
+
+  /* Black liquid-glass button system — used site-wide + across the admin
+     panel (buttons, toggles) so every actionable control reads as a frosted
+     dark glass surface instead of a flat fill. */
+  --glass-black-bg: rgba(8, 8, 10, 0.88);
+  --glass-black-bg-hover: rgba(14, 14, 16, 0.94);
+  --glass-black-bg-active: rgba(0, 0, 0, 1);
+  --glass-black-border: rgba(255, 255, 255, 0.18);
+  --glass-black-border-strong: rgba(255, 255, 255, 0.3);
+  --glass-black-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --glass-black-shadow-hover: 0 10px 28px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+
+  /* Brand/theme colors — overridden at runtime from Admin -> Themes (see
+     applyTheme in utils/theme.ts). Defaults match the original hardcoded
+     look so nothing changes until an admin picks something. */
+  --brand-primary: #111111;
+  --brand-primary-hover: #000000;
+  --brand-primary-active: #000000;
+  --brand-primary-soft: rgba(17, 17, 17, 0.06);
+
+  /* Titan-style accent palette used for sale badges / offer strips.
+     Client asked for a plain black & white storefront, so the accent is
+     just black (with a light-gray "soft" variant) instead of a color. */
+  --brand-accent: #000000;
+  --brand-accent-soft: #f4f4f5;
+  --brand-sale-pink: #f4f4f5;
+
+  /* Button shape + typography — admin-controlled from the same Themes page */
+  --brand-radius: 9999px;
+  --brand-font: "DM Sans", -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --brand-font-scale: 100%;
+
+  /* Mobile bottom tab bar (storefront, <lg screens only) */
+  --mobile-nav-bg: #ffffff;
+  --mobile-nav-text: #18181b;
+  --mobile-nav-active: #18181b;
+}
+
+/* Border-box everywhere so a 1px border never pushes a rounded-corner
+   surface's total size past its container (the "layout/bordering issues"
+   that show up when glass cards sit inside other glass panels). */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* When a glass surface is nested directly inside another glass surface,
+   drop the inner border/shadow so edges don't double up. */
+.glass .glass, .glass .glass-card, .glass .glass-pill,
+.glass-strong .glass, .glass-strong .glass-card,
+.glass-dark .glass-dark, .glass-card .glass-card {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+#root {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Belt-and-braces: flex/grid items default to min-width:auto, which lets a
+   single long, unbreakable text node force its flex row (and the whole
+   page) wider than the viewport on mobile. This makes text-bearing flex
+   items shrinkable and wrappable by default unless explicitly overridden. */
+img, svg, video {
+  max-width: 100%;
+  height: auto;
+}
+
+html {
+  font-size: var(--brand-font-scale, 100%);
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #ffffff;
+  color: #18181b;
+  font-family: var(--brand-font), -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.glass {
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
+  box-shadow: 0 1px 3px rgba(24, 24, 27, 0.06);
+}
+
+.glass-nav {
+  background: #ffffff;
+  border-bottom: 1px solid #e4e4e7;
+  box-shadow: none;
+}
+
+.glass-strong {
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
+  box-shadow: 0 4px 16px rgba(24, 24, 27, 0.08);
+}
+
+.glass-dark {
+  background: #18181b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.glass-pill {
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
+  box-shadow: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.glass-pill:hover { background: #f4f4f5; }
+.glass-pill:active { background: #e4e4e7; }
+
+.glass-input {
+  background: #ffffff !important;
+  border: 1px solid #d4d4d8 !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.glass-input:focus {
+  background: #ffffff !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.glass-card {
+  background: #ffffff;
+  border: 1px solid #f0f0f2;
+  box-shadow: 0 1px 2px rgba(24, 24, 27, 0.04);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.glass-card:hover {
+  box-shadow: 0 8px 20px rgba(24, 24, 27, 0.08);
+  border-color: #e4e4e7;
+}
+
+/* ---- Black liquid-glass buttons (site + admin) ----
+   Every shared button class renders as a frosted black glass surface:
+   translucent dark fill, backdrop blur, a soft light-catching top edge and
+   a hairline border so it stays readable whether it sits on a white card,
+   a light-gray admin background, or the dark topbar. Text is always white
+   so it stays legible against the dark glass at every opacity. A glossy
+   specular highlight along the top half (the ::before layer below) is what
+   sells the "liquid glass" look — light catching the curved top of the
+   pill — and every press gets a springy squash-and-settle, matching the
+   Buy Now / Add to Cart / Pay / Checkout buttons on the storefront. */
+.glass-btn-primary,
+.glass-btn-grey,
+.glass-btn-light,
+.btn-liquid-dark,
+.btn-liquid-light,
+.glass-btn-gold {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.glass-btn-primary::before,
+.glass-btn-grey::before,
+.glass-btn-light::before,
+.btn-liquid-dark::before,
+.btn-liquid-light::before,
+.glass-btn-gold::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.06) 42%, rgba(255, 255, 255, 0) 60%);
+  pointer-events: none;
+}
+.glass-btn-primary:active,
+.glass-btn-grey:active,
+.glass-btn-light:active,
+.btn-liquid-dark:active,
+.btn-liquid-light:active,
+.glass-btn-gold:active {
+  transform: scale(0.96);
+}
+
+.glass-btn-primary,
+.glass-btn-grey,
+.glass-btn-light,
+.btn-liquid-dark,
+.btn-liquid-light {
+  background: var(--glass-black-bg);
+  border: 1px solid var(--glass-black-border);
+  color: #ffffff;
+  border-radius: var(--brand-radius, 9999px) !important;
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow: var(--glass-black-shadow);
+}
+.glass-btn-primary:hover,
+.glass-btn-grey:hover,
+.glass-btn-light:hover,
+.btn-liquid-dark:hover,
+.btn-liquid-light:hover {
+  background: var(--glass-black-bg-hover);
+  border-color: var(--glass-black-border-strong);
+  box-shadow: var(--glass-black-shadow-hover);
+}
+.glass-btn-primary:active,
+.glass-btn-grey:active,
+.glass-btn-light:active,
+.btn-liquid-dark:active,
+.btn-liquid-light:active {
+  background: var(--glass-black-bg-active);
+}
+
+/* Primary CTA — slightly stronger glass + a subtle white edge so it still
+   reads as "the" primary action next to secondary glass buttons. */
+.glass-btn-primary {
+  background: var(--glass-black-bg-hover);
+  border-color: var(--glass-black-border-strong);
+}
+.glass-btn-primary:hover {
+  background: var(--glass-black-bg-active);
+}
+
+/* Secondary / outline pairing (e.g. Add to Cart next to Buy Now) — same
+   black glass, thinner border so it visibly sits a step below primary. */
+.glass-btn-grey {
+  border: 1px solid var(--glass-black-border) !important;
+}
+
+/* Solid black glass — Buy Now / Proceed to Checkout */
+.glass-btn-gold {
+  background: var(--glass-black-bg-hover);
+  color: #ffffff;
+  border: 1px solid var(--glass-black-border-strong);
+  border-radius: var(--brand-radius, 9999px) !important;
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow: var(--glass-black-shadow);
+}
+.glass-btn-gold:hover {
+  background: var(--glass-black-bg-active);
+  box-shadow: var(--glass-black-shadow-hover);
+  filter: none;
+}
+
+/* Light/secondary admin + site buttons — same black glass family, kept a
+   touch more transparent so it reads as "secondary" against btn-liquid-dark. */
+.glass-btn-light,
+.btn-liquid-light {
+  background: rgba(8, 8, 10, 0.72);
+  color: #ffffff;
+}
+.glass-btn-light:hover,
+.btn-liquid-light:hover {
+  background: var(--glass-black-bg-hover);
+}
+
+/* Admin primary action button (btnPrimary — Save, Add product, Create…) */
+.btn-liquid-dark {
+  background: var(--glass-black-bg-hover);
+  color: #fff;
+  border-color: var(--glass-black-border-strong);
+}
+.btn-liquid-dark:hover {
+  background: var(--glass-black-bg-active);
+}
+
+/* Sidebar collapse/expand toggle — a small black-glass "puck" that sits
+   half over the sidebar edge (same liquid-glass language as the primary
+   buttons, instead of the plain flat grey circle it used to be), with a
+   gentle scale/lift on hover so it reads as a distinct, deliberate control. */
+.admin-sidebar-toggle {
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, background 0.15s ease;
+}
+.admin-sidebar-toggle:hover {
+  transform: scale(1.08);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+/* Sliding indicator behind the active icon on the mobile bottom tab bar —
+   same frosted black glass as btn-liquid-dark, but its own class so it
+   doesn't inherit that rule's `position: relative` (this pill is always
+   `absolute`, positioned/animated via inline left/width from JS). */
+.bottom-nav-indicator {
+  background: var(--glass-black-bg-hover);
+  border: 1px solid var(--glass-black-border-strong);
+  box-shadow: var(--glass-black-shadow);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+}
+
+.glass-blob { display: none; }
+
+/* Individual liquid-glass pill (active state) used by LiquidPillGroup —
+   frosted black glass with a glossy top highlight, on its own pill shape
+   with a gap from its neighbours (not a shared sliding track).
+   NOTE: no backdrop-filter here on purpose. The background above is
+   near-opaque (0.97 → 1 alpha), so a blur behind it was pure cost with no
+   visible effect — except during the spring/overshoot slide animation,
+   where this pill briefly overlaps a neighbouring label and the blurred
+   frame gets "stuck" composited over that label's text (a Chromium
+   backdrop-filter + transform compositing glitch), leaving nearby pill
+   labels looking washed-out/near-invisible after the slide settles.
+   Dropping the blur removes the effect entirely without changing how the
+   pill looks (it was already fully opaque). */
+.liquid-pill-active {
+  background: linear-gradient(180deg, rgba(46, 46, 50, 0.97) 0%, rgba(0, 0, 0, 1) 100%);
+  border: 1px solid var(--glass-black-border-strong);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.22), inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+  will-change: left, width;
+  transform: translateZ(0);
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.animate-marquee { animation-name: marquee; animation-timing-function: linear; animation-iteration-count: infinite; }
+@keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes slideInLeft { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+@keyframes popupIn { from { opacity: 0; transform: translateY(10px) scale(0.94); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-slide-up { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+button { transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+select, input, textarea { transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 8px; }
+
+/* Neat, thin, dark scrollbar for the admin sidebar */
+.admin-sidebar-scroll { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.18) transparent; }
+.admin-sidebar-scroll::-webkit-scrollbar { width: 5px; }
+.admin-sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+.admin-sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 999px; }
+.admin-sidebar-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.32); }
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Hide scrollbar for horizontal pill scrollers (admin dashboard period selector, etc.) */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ---------------------------------------------------------------------- */
+/* Page transition animations (Admin -> Themes -> Page Transition).       */
+/* Each page's <main> content remounts (key=pathname) on route change, so */
+/* these keyframes fire automatically as an "enter" animation.            */
+/* ---------------------------------------------------------------------- */
+/* NOTE: every "to" keyframe below intentionally ends on `transform: none`
+   (not translateY(0)/scale(1)/rotate(0)/etc). Visually those are identical,
+   but a non-"none" transform value - even an identity one like scale(1) -
+   still creates a new CSS containing block. Since .pt-* uses
+   animation-fill-mode: both, that containing block would otherwise stick
+   around on <main> forever after the page-enter animation finishes. Any
+   position:fixed element rendered inside a page (e.g. the review story
+   image viewer on Checkout) would then be positioned relative to <main>
+   instead of the real viewport - which is exactly why the review images
+   were appearing scrolled up out of view instead of centered on screen.
+   Ending on transform: none avoids creating that containing block. */
+@keyframes pt-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pt-slide-left { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: none; } }
+@keyframes pt-slide-right { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: none; } }
+@keyframes pt-slide-up { from { opacity: 0; transform: translateY(32px); } to { opacity: 1; transform: none; } }
+@keyframes pt-slide-down { from { opacity: 0; transform: translateY(-32px); } to { opacity: 1; transform: none; } }
+@keyframes pt-zoom-in { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: none; } }
+@keyframes pt-zoom-out { from { opacity: 0; transform: scale(1.06); } to { opacity: 1; transform: none; } }
+@keyframes pt-flip { from { opacity: 0; transform: perspective(800px) rotateY(8deg); } to { opacity: 1; transform: none; } }
+@keyframes pt-blur { from { opacity: 0; filter: blur(8px); } to { opacity: 1; filter: blur(0); } }
+@keyframes pt-rotate { from { opacity: 0; transform: rotate(-2deg) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes pt-curtain { from { opacity: 0; clip-path: inset(0 0 100% 0); } to { opacity: 1; clip-path: inset(0 0 0% 0); } }
+
+.pt-fade { animation: pt-fade 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.pt-slide-left { animation: pt-slide-left 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.pt-slide-right { animation: pt-slide-right 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.pt-slide-up { animation: pt-slide-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.pt-slide-down { animation: pt-slide-down 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.pt-zoom-in { animation: pt-zoom-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.pt-zoom-out { animation: pt-zoom-out 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.pt-flip { animation: pt-flip 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.pt-blur { animation: pt-blur 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.pt-rotate { animation: pt-rotate 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.pt-curtain { animation: pt-curtain 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* ---------------------------------------------------------------------
+   Scroll reveal: sections fade + slide up into place as they enter the
+   viewport while scrolling (Shopify-style smooth scroll animation).
+   Paired with the useScrollReveal hook, which toggles the "in-view"
+   class via IntersectionObserver.
+--------------------------------------------------------------------- */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+.scroll-reveal.in-view {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal { opacity: 1; transform: none; transition: none; }
+  html { scroll-behavior: auto; }
+}
+
+/* ---------------------------------------------------------------------
+   Soft corners, site-wide (Hari's request: everything should have
+   slightly soft/rounded corners instead of sharp edges — cards, buttons,
+   inputs, dropdowns, collection cards, etc). Overriding Tailwind's
+   rounded-* utilities here (after the Tailwind import) is far safer
+   than hand-editing every className in every component, and it also
+   catches any rounded-* class added later. Anything that was already
+   using a bigger rounded-* utility (rounded-xl/2xl/3xl/full) keeps that
+   bigger radius; this only lifts elements that were sharp/near-sharp up
+   to a small consistent soft-corner radius.
+--------------------------------------------------------------------- */
+.rounded-none,
+.rounded-sm,
+.rounded,
+.rounded-md,
+input,
+select,
+textarea,
+button:not(.rounded-full) {
+  border-radius: 10px !important;
+}
+
+/* Liquid-glass buttons are always full pills regardless of the corner-radius
+   normalization above — Buy Now / Add to Cart / Pay / Checkout should all
+   render as the same rounded pill shape. Also covers every LiquidPillGroup
+   segmented-control button (Today/Yesterday/This Month… period switchers,
+   the Overview/Best Selling Phone Models toggle, etc.) via .admin-pill-btn,
+   so the *unselected* pills stay true stadium/pill shaped too instead of
+   falling back to the generic `button { border-radius: 10px }` rule above
+   and rendering as slightly-rounded rectangles next to a fully-round
+   selected pill. */
+.glass-btn-primary,
+.glass-btn-grey,
+.glass-btn-light,
+.glass-btn-gold,
+.btn-liquid-dark,
+.btn-liquid-light,
+.admin-pill-btn {
+  border-radius: var(--brand-radius, 9999px) !important;
+}
+
+/* ==========================================================================
+   ADMIN PANEL — full iOS/macOS "Liquid Glass" pass
+   Scoped entirely under .admin-glass so the storefront is untouched.
+   Turns every plain white admin surface (sidebar, topbar, cards, modals,
+   dropdowns, toasts) into real frosted glass — backdrop blur, translucency,
+   a soft specular top edge — floating over an ambient mesh background, with
+   SF Pro-first typography and spring-based motion on every interactive
+   element, matching macOS Sequoia / iOS 18's Liquid Glass language.
+   ========================================================================== */
+
+.admin-glass {
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-glass: cubic-bezier(0.22, 1, 0.36, 1);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Ambient animated mesh gradient — sits behind every glass panel so the
+   blur/translucency actually has something soft and colorful to pick up,
+   the way macOS's wallpaper does behind Control Center / Liquid Glass. */
+.admin-glass-main {
+  background:
+    radial-gradient(circle at 12% 8%, rgba(120, 170, 255, 0.16), transparent 42%),
+    radial-gradient(circle at 88% 15%, rgba(255, 170, 210, 0.14), transparent 45%),
+    radial-gradient(circle at 30% 92%, rgba(160, 255, 210, 0.14), transparent 48%),
+    radial-gradient(circle at 90% 88%, rgba(200, 170, 255, 0.14), transparent 45%),
+    #eef0f3 !important;
+  background-attachment: fixed;
+  animation: admin-mesh-drift 26s ease-in-out infinite alternate;
+}
+
+@keyframes admin-mesh-drift {
+  0%   { background-position: 0% 0%, 100% 0%, 0% 100%, 100% 100%, 0 0; }
+  100% { background-position: 6% 4%, 94% 6%, 6% 94%, 94% 94%, 0 0; }
+}
+
+/* Sidebar — frosted glass slab floating over the mesh, with a hairline
+   specular edge instead of a flat border. */
+.admin-glass-sidebar {
+  background: rgba(255, 255, 255, 0.6) !important;
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border-right: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 1px 0 0 rgba(24, 24, 27, 0.04), inset -1px 0 0 rgba(255, 255, 255, 0.6);
+}
+
+/* Mobile drawer variant of the sidebar — it floats as an overlay on top of
+   the page's own content (not beside it, like the desktop rail), so ANY
+   transparency lets page text bleed through and visually "overlap" the
+   menu. Fully solid here — no blur, no translucency.
+   NOTE: this element also carries the plain `bg-white` class, which the
+   generic ".admin-glass .bg-white" glass rule below would otherwise win on
+   source-order (same specificity) — so this selector is deliberately one
+   class more specific to always beat it, regardless of rule order. */
+.admin-glass .admin-glass-sidebar.admin-mobile-drawer {
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Any plain white card/panel/topbar/modal/dropdown inside the admin panel
+   becomes real glass — frosted, translucent, with a soft ambient shadow and
+   a bright top specular line, instead of a flat white rectangle. */
+.admin-glass .bg-white {
+  background: rgba(255, 255, 255, 0.68) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 0 8px 28px rgba(24, 24, 27, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Nested glass-on-glass: drop the extra blur/shadow stacking so cards inside
+   cards don't get murkier with every level (same rule the site already uses
+   for .glass, applied to raw bg-white nesting inside the admin panel). */
+.admin-glass .bg-white .bg-white {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Floating menus/dropdowns/popovers (option lists that open over other
+   content — range pickers, filter menus, context menus) need to stay
+   readable no matter what's behind them, so they get near-solid glass
+   instead of the lighter translucency used on static cards — heavy blur
+   still gives the frosted look, but nothing bleeds through legibly. */
+.admin-glass .bg-white.shadow-lg,
+.admin-glass .shadow-lg.bg-white {
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-shadow: 0 12px 32px rgba(24, 24, 27, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Dark "active nav row" fills (sidebar selection, black action rows) —
+   frosted black glass instead of a flat #1a1a1a, matching the site-wide
+   btn-liquid-dark treatment. */
+.admin-glass .bg-\[\#1a1a1a\] {
+  background: var(--glass-black-bg-hover) !important;
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow: none;
+  border: 1px solid var(--glass-black-border);
+}
+
+/* Borders throughout the admin panel soften to hairline glass edges rather
+   than flat grey rules. */
+.admin-glass .border-\[\#e1e3e5\],
+.admin-glass .border-\[\#e4e4e7\],
+.admin-glass .border-\[\#f0f0f2\] {
+  border-color: rgba(24, 24, 27, 0.08) !important;
+}
+
+/* Spring-based motion everywhere something is clickable — buttons, nav rows,
+   cards — so state changes feel like Liquid Glass settling into place
+   rather than a linear CSS fade. */
+.admin-glass button,
+.admin-glass a,
+.admin-glass [role="button"] {
+  transition-timing-function: var(--spring) !important;
+}
+.admin-glass button:active,
+.admin-glass [role="button"]:active {
+  transform: scale(0.97);
+}
+
+/* Cards/rows lift slightly on hover, like glass catching light. */
+.admin-glass .rounded-lg:hover,
+.admin-glass .rounded-xl:hover,
+.admin-glass .rounded-2xl:hover {
+  transition: box-shadow 0.25s var(--ease-glass), transform 0.25s var(--ease-glass), background-color 0.2s ease;
+}
+
+/* Scrollbars — thin frosted capsules instead of default OS chrome, inside
+   the admin panel only. */
+.admin-glass ::-webkit-scrollbar { width: 8px; height: 8px; }
+.admin-glass ::-webkit-scrollbar-thumb {
+  background: rgba(24, 24, 27, 0.18);
+  border-radius: 999px;
+}
+.admin-glass ::-webkit-scrollbar-thumb:hover { background: rgba(24, 24, 27, 0.3); }
+.admin-glass ::-webkit-scrollbar-track { background: transparent; }
+
+/* Product/Collection "create" modals (Add Product set-picker, per-material
+   product form, Add/Edit Collection) — store owner wants these fully solid,
+   not glass, since content behind was visibly bleeding through and hurting
+   readability while filling in a form. Scoped narrowly to just these
+   dialogs (via .admin-modal-solid) so the rest of the admin's glass look is
+   untouched. */
+.admin-glass .admin-modal-solid,
+.admin-glass .admin-modal-solid.bg-white {
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 20px 60px rgba(24, 24, 27, 0.25) !important;
+}
+.admin-glass .admin-modal-solid .bg-white,
+.admin-glass .admin-modal-solid .bg-\[\#f6f6f7\],
+.admin-glass .admin-modal-solid .bg-\[\#f1f1f1\] {
+  background: #f6f6f7 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Modal/overlay backdrops get a proper frosted scrim instead of flat black,
+   so the page behind a modal reads as "glass over glass" rather than going
+   dark. */
+.admin-glass .bg-black\/40,
+.admin-glass .bg-black\/50 {
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* Toasts — frosted glass pill sliding in with a spring, replacing the old
+   flat bg-white/95 card. */
+.admin-toast-glass {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-shadow: 0 10px 30px rgba(24, 24, 27, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  animation: admin-toast-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes admin-toast-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.94); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Page-level fade/slide when switching admin tabs, so navigation feels like
+   panes of glass sliding rather than an instant content swap. */
+.admin-glass main {
+  animation: admin-pane-in 0.35s var(--ease-glass);
+}
+@keyframes admin-pane-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-glass-main { animation: none; }
+  .admin-glass main { animation: none; }
+  .admin-toast-glass { animation: none; }
+}
+
+/* ---- iOS 26 style toggle switch (admin panel, all ToggleSwitch usages) ----
+   Real iOS look: green frosted-glass track when on, dark glass track when
+   off, a bright white glossy knob that slides with a springy bounce and
+   squashes slightly mid-drag the way iOS's Liquid Glass switches do. */
+.ios-toggle {
+  position: relative;
+  cursor: pointer;
+  border: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.ios-toggle-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  transition: background 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease;
+  background: rgba(120, 120, 128, 0.32);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+.ios-toggle[data-checked="true"] .ios-toggle-track {
+  background: linear-gradient(180deg, #34d76a, #2bc659);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 10px rgba(52, 199, 89, 0.35);
+}
+.ios-toggle-knob {
+  position: relative;
+  z-index: 1;
+  height: 22px;
+  width: 22px;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.06), 0 3px 8px rgba(0, 0, 0, 0.18), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+  transform: translateX(0);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.15s ease, box-shadow 0.2s ease;
+}
+.ios-toggle[data-checked="true"] .ios-toggle-knob {
+  transform: translateX(20px);
+}
+/* Press feedback — knob widens slightly like real iOS while held, then
+   springs back into a circle on release. */
+.ios-toggle:active .ios-toggle-knob {
+  width: 26px;
+}
+.ios-toggle[data-checked="true"]:active .ios-toggle-knob {
+  transform: translateX(16px);
+}
+
+/* ==========================================================================
+   ADMIN PANEL — DARK MODE
+   Toggled in Settings → General. Scoped to .admin-glass.admin-dark (the
+   admin's outer wrapper only) so the storefront is never touched.
+   Rewrites the same Shopify-style hex/zinc utility classes used throughout
+   AdminDashboard.tsx to dark-safe equivalents via attribute-substring
+   selectors, since most colors are Tailwind arbitrary-value classes
+   (text-[#202223] etc) rather than named utilities. Placed after — and each
+   rule made one class more specific than — the light-mode glass rules above
+   so it always wins regardless of source order.
+
+   Design language: a proper tiered-elevation "graphite glass" theme rather
+   than one flat grey — each surface (page → sidebar → card → nested card →
+   modal → popover) sits one shade lighter than the one below it, edged with
+   a soft top highlight + real drop shadow so depth reads at a glance, and
+   the existing brand blue (#2c6ecb / #458fff) carries active/focus states
+   instead of a plain grey highlight.
+   ========================================================================== */
+
+.admin-glass.admin-dark {
+  color-scheme: dark;
+  --dm-0: #0a0a0c;   /* page base */
+  --dm-1: #131316;   /* sidebar */
+  --dm-2: #1a1a1f;   /* card surface */
+  --dm-3: #222229;   /* nested surface / inputs */
+  --dm-4: #2a2a32;   /* modal / popover / hover */
+  --dm-5: #34343d;   /* active / selected surface */
+  --dm-border: rgba(255, 255, 255, 0.08);
+  --dm-border-strong: rgba(255, 255, 255, 0.16);
+  --dm-text: #f4f4f6;
+  --dm-text-muted: #a9abb3;
+  --dm-text-faint: #75777f;
+  --dm-accent: #5b9bff;
+  --dm-accent-strong: #7dabff;
+  --dm-accent-soft: rgba(91, 155, 255, 0.14);
+}
+
+/* Base page + main scroll area background — a deep charcoal with faint
+   colour-shifted glows (kept subtle) so it never reads as a plain #000
+   rectangle, plus a very fine grain-free vignette for depth. */
+.admin-glass.admin-dark .admin-glass-main {
+  background:
+    radial-gradient(circle at 14% 6%, rgba(91, 155, 255, 0.07), transparent 40%),
+    radial-gradient(circle at 88% 12%, rgba(180, 100, 220, 0.055), transparent 42%),
+    radial-gradient(circle at 25% 95%, rgba(60, 190, 150, 0.05), transparent 46%),
+    radial-gradient(circle at 92% 90%, rgba(120, 100, 220, 0.055), transparent 44%),
+    var(--dm-0) !important;
+}
+.admin-glass.admin-dark,
+.admin-glass.admin-dark[class*="bg-white"] {
+  background-color: var(--dm-0) !important;
+}
+
+/* Sidebar (desktop rail + mobile drawer) — one clean step above the page,
+   with a crisp hairline + inner highlight so it reads as its own plane. */
+.admin-glass.admin-dark .admin-glass-sidebar {
+  background: linear-gradient(180deg, var(--dm-1) 0%, #101013 100%) !important;
+  border-right-color: var(--dm-border);
+  box-shadow: 1px 0 0 rgba(0, 0, 0, 0.4), inset -1px 0 0 rgba(255, 255, 255, 0.03);
+}
+.admin-glass.admin-dark .admin-glass-sidebar.admin-mobile-drawer {
+  background: var(--dm-1) !important;
+}
+/* Sidebar collapse/expand handle + mobile drawer close button */
+.admin-glass.admin-dark .admin-glass-sidebar [class*="bg-white"] {
+  background-color: var(--dm-3) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Any "plain white" surface (cards, topbars, modals, dropdowns) → an
+   elevated dark card with a soft top highlight (the "glass edge") and a
+   real, slightly-warm shadow beneath it instead of a flat grey fill. */
+.admin-glass.admin-dark [class*="bg-white"] {
+  background-color: var(--dm-2) !important;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0) 40%) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 10px 30px -12px rgba(0, 0, 0, 0.65) !important;
+}
+.admin-glass.admin-dark [class*="bg-white"] [class*="bg-white"] {
+  background-color: var(--dm-3) !important;
+  background-image: none !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+}
+.admin-glass.admin-dark [class*="shadow-lg"][class*="bg-white"] {
+  background-color: var(--dm-4) !important;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 35%) !important;
+  box-shadow: 0 20px 48px -12px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+}
+
+/* Fully solid modals (Add Product / Add Collection / other admin-modal-solid dialogs) */
+.admin-glass.admin-dark [class*="admin-modal-solid"] {
+  background-color: var(--dm-2) !important;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0) 30%) !important;
+  border: 1px solid var(--dm-border);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+.admin-glass.admin-dark [class*="admin-modal-solid"] [class*="bg-white"],
+.admin-glass.admin-dark [class*="admin-modal-solid"] [class*="bg-[#f6f6f7]"],
+.admin-glass.admin-dark [class*="admin-modal-solid"] [class*="bg-[#f1f1f1]"] {
+  background-color: var(--dm-3) !important;
+  background-image: none !important;
+}
+
+/* Primary body text (#202223) and its hover variant */
+.admin-glass.admin-dark [class*="text-[#202223]"],
+.admin-glass.admin-dark [class*="hover:text-[#202223]"]:hover,
+.admin-glass.admin-dark [class*="text-[#3f4144]"],
+.admin-glass.admin-dark [class*="text-[#3f3f46]"],
+.admin-glass.admin-dark [class*="text-[#3f4247]"] {
+  color: var(--dm-text) !important;
+}
+/* Secondary/muted body text (#6d7175, #494c50, #8c9196 and hover states) */
+.admin-glass.admin-dark [class*="text-[#6d7175]"],
+.admin-glass.admin-dark [class*="text-[#494c50]"] {
+  color: var(--dm-text-muted) !important;
+}
+.admin-glass.admin-dark [class*="text-[#8c9196]"],
+.admin-glass.admin-dark [class*="placeholder:text-[#8c9196]"]::placeholder,
+.admin-glass.admin-dark [class*="text-[#6b7076]"] {
+  color: var(--dm-text-faint) !important;
+}
+.admin-glass.admin-dark [class*="text-[#c9cccf]"],
+.admin-glass.admin-dark [class*="text-[#c4c7cb]"] {
+  color: #55565d !important;
+}
+.admin-glass.admin-dark [class*="text-zinc-900"],
+.admin-glass.admin-dark [class*="text-zinc-700"] { color: #e9e9ec !important; }
+.admin-glass.admin-dark [class*="text-zinc-500"],
+.admin-glass.admin-dark [class*="text-zinc-400"] { color: #a2a4ab !important; }
+.admin-glass.admin-dark [class*="text-zinc-300"],
+.admin-glass.admin-dark [class*="text-zinc-200"] { color: #5c5d64 !important; }
+
+/* Light grey fill backgrounds (inputs, filter pills, table headers, hover rows) */
+.admin-glass.admin-dark [class*="bg-[#f6f6f7]"],
+.admin-glass.admin-dark [class*="bg-[#f1f2f3]"],
+.admin-glass.admin-dark [class*="bg-[#f1f1f1]"],
+.admin-glass.admin-dark [class*="bg-[#f0f0f0]"],
+.admin-glass.admin-dark [class*="bg-[#fafbfb]"],
+.admin-glass.admin-dark [class*="bg-[#e9e9e9]"],
+.admin-glass.admin-dark [class*="bg-[#e1e3e5]"],
+.admin-glass.admin-dark [class*="bg-zinc-50"],
+.admin-glass.admin-dark [class*="bg-zinc-100"] {
+  background-color: var(--dm-3) !important;
+  background-image: none !important;
+}
+.admin-glass.admin-dark [class*="hover:bg-[#f6f6f7]"]:hover,
+.admin-glass.admin-dark [class*="hover:bg-[#f1f2f3]"]:hover,
+.admin-glass.admin-dark [class*="hover:bg-[#f1f1f1]"]:hover,
+.admin-glass.admin-dark [class*="hover:bg-[#e9e9e9]"]:hover,
+.admin-glass.admin-dark [class*="hover:bg-[#e1e3e5]"]:hover,
+.admin-glass.admin-dark [class*="hover:bg-zinc-100"]:hover {
+  background-color: var(--dm-4) !important;
+}
+
+/* Hairline borders — crisper + slightly brighter than before so cards feel
+   deliberately edged rather than fading into the page. */
+.admin-glass.admin-dark [class*="border-[#e1e3e5]"],
+.admin-glass.admin-dark [class*="border-[#f1f2f3]"],
+.admin-glass.admin-dark [class*="border-[#f1f1f1]"],
+.admin-glass.admin-dark [class*="border-[#f0f0f0]"],
+.admin-glass.admin-dark [class*="border-[#f6f6f7]"],
+.admin-glass.admin-dark [class*="border-zinc-200"] {
+  border-color: var(--dm-border) !important;
+}
+.admin-glass.admin-dark [class*="border-[#c9cccf]"],
+.admin-glass.admin-dark [class*="border-[#8c9196]"] {
+  border-color: var(--dm-border-strong) !important;
+}
+.admin-glass.admin-dark [class*="border-[#202223]"] {
+  border-color: rgba(255, 255, 255, 0.34) !important;
+}
+
+/* "Active/selected" surfaces (sidebar item, pill toggle, active tab) — a
+   subtle brand-blue tinted glass with a crisp border and soft glow instead
+   of plain flat grey, so the active state actually reads as "selected". */
+.admin-glass.admin-dark [class*="bg-[#1a1a1a]"],
+.admin-glass.admin-dark [class*="bg-[#18181b]"],
+.admin-glass.admin-dark [class*="bg-[#202223]"] {
+  background: linear-gradient(180deg, rgba(91, 155, 255, 0.22), rgba(91, 155, 255, 0.12)) !important;
+  border: 1px solid rgba(91, 155, 255, 0.35) !important;
+  box-shadow: 0 4px 16px rgba(91, 155, 255, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Status pills / badges (order status, review status, query status etc) —
+   keep the hue but move to a dark-safe tint, with a matching hairline so
+   each badge reads as a distinct chip rather than a soft colour smear. */
+.admin-glass.admin-dark [class*="bg-blue-50"] { background-color: rgba(91, 155, 255, 0.16) !important; box-shadow: inset 0 0 0 1px rgba(91, 155, 255, 0.3); }
+.admin-glass.admin-dark [class*="bg-emerald-50"] { background-color: rgba(16, 185, 129, 0.16) !important; box-shadow: inset 0 0 0 1px rgba(16, 185, 129, 0.32); }
+.admin-glass.admin-dark [class*="bg-red-50"] { background-color: rgba(239, 68, 68, 0.16) !important; box-shadow: inset 0 0 0 1px rgba(239, 68, 68, 0.32); }
+.admin-glass.admin-dark [class*="bg-amber-50"] { background-color: rgba(245, 158, 11, 0.16) !important; box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.32); }
+.admin-glass.admin-dark [class*="bg-purple-50"] { background-color: rgba(168, 85, 247, 0.16) !important; box-shadow: inset 0 0 0 1px rgba(168, 85, 247, 0.32); }
+.admin-glass.admin-dark [class*="text-blue-700"],
+.admin-glass.admin-dark [class*="text-blue-600"],
+.admin-glass.admin-dark [class*="text-blue-500"],
+.admin-glass.admin-dark [class*="text-blue-400"] { color: var(--dm-accent-strong) !important; }
+.admin-glass.admin-dark [class*="text-emerald-700"],
+.admin-glass.admin-dark [class*="text-emerald-600"],
+.admin-glass.admin-dark [class*="text-emerald-900"] { color: #5fd6a3 !important; }
+.admin-glass.admin-dark [class*="text-red-600"] { color: #ff8a8a !important; }
+.admin-glass.admin-dark [class*="text-amber-700"] { color: #f0b859 !important; }
+.admin-glass.admin-dark [class*="hover:bg-red-50"]:hover { background-color: rgba(239, 68, 68, 0.16) !important; }
+
+/* Form inputs / textareas / selects (glass-input class + the plain inputCls
+   Tailwind string used across every admin form) — inset "carved" surface
+   with a brand-blue focus glow to match the light-mode focus ring. */
+.admin-glass.admin-dark input,
+.admin-glass.admin-dark textarea,
+.admin-glass.admin-dark select {
+  background-color: var(--dm-3) !important;
+  color: var(--dm-text) !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.admin-glass.admin-dark input::placeholder,
+.admin-glass.admin-dark textarea::placeholder {
+  color: var(--dm-text-faint) !important;
+}
+.admin-glass.admin-dark input:focus,
+.admin-glass.admin-dark textarea:focus,
+.admin-glass.admin-dark select:focus {
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4), 0 0 0 3px var(--dm-accent-soft) !important;
+  border-color: var(--dm-accent) !important;
+}
+.admin-glass.admin-dark .glass-input {
+  background: var(--dm-3) !important;
+  border-color: var(--dm-border-strong) !important;
+  color: var(--dm-text) !important;
+}
+
+/* Primary/liquid-black buttons get a faint brand-blue edge in dark mode so
+   they don't read as a near-invisible black-on-black rectangle. */
+.admin-glass.admin-dark .btn-liquid-dark {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 0 0 1px rgba(91, 155, 255, 0.18) !important;
+}
+.admin-glass.admin-dark .btn-liquid-dark:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 0 0 1px rgba(91, 155, 255, 0.3) !important;
+}
+
+/* Scrollbars */
+.admin-glass.admin-dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+}
+.admin-glass.admin-dark ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.24); }
+.admin-glass.admin-dark .admin-sidebar-scroll {
+  scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
+}
+
+/* Modal/overlay scrims */
+.admin-glass.admin-dark [class*="bg-black/40"],
+.admin-glass.admin-dark [class*="bg-black/50"] {
+  background-color: rgba(0, 0, 0, 0.66) !important;
+}
+
+/* Toasts */
+.admin-glass.admin-dark .admin-toast-glass {
+  background: linear-gradient(180deg, rgba(42, 42, 50, 0.92), rgba(30, 30, 36, 0.92));
+  color: var(--dm-text);
+  border: 1px solid var(--dm-border-strong);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Table borders (border-collapse tables use the same hairline border
+   classes above, but header rows sometimes carry a plain border-b with no
+   explicit color class — this catches the fallback default-grey case). */
+.admin-glass.admin-dark table,
+.admin-glass.admin-dark th,
+.admin-glass.admin-dark td {
+  border-color: var(--dm-border);
+}
+/* Zebra + hover on data-table rows read much cleaner with a faint tint
+   than the default light-mode row-hover grey. */
+.admin-glass.admin-dark tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Images/thumbnails on an empty/transparent background read as harsh white
+   squares on a dark page — soften the surrounding placeholder tone. */
+.admin-glass.admin-dark img { background-color: transparent; }
+
+/* Stat-card numbers and section dividers get a touch more polish: crisper
+   hairline under sticky headers, and a subtle divider tint instead of the
+   near-invisible light-mode grey. */
+.admin-glass.admin-dark [class*="divide-"] > * + * {
+  border-color: var(--dm-border) !important;
+}
+.admin-glass.admin-dark .admin-glass-sidebar [class*="border-t"] {
+  border-color: var(--dm-border) !important;
+}
+
+/* ==========================================================================
+   ADMIN DARK MODE — extra premium pass
+   Card lift-on-hover, a real left accent bar on the active sidebar item,
+   glowing/blurred sticky topbar, raw inline-SVG chart colours (the little
+   revenue/traffic sparkline charts set stroke/fill as hard-coded hex attrs,
+   not Tailwind classes, so they need their own attribute selectors), and
+   a subtle shine sweep on primary buttons.
+   ========================================================================== */
+
+/* Cards lift slightly + glow brighter on hover instead of the flat
+   light-mode "shadow-md", which barely reads at all on a dark surface. */
+.admin-glass.admin-dark [class*="hover:shadow"] {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+.admin-glass.admin-dark [class*="hover:shadow"]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 16px 36px -14px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Sticky page-title topbar: stronger blur + a richer edge so it visibly
+   floats above scrolled content instead of blending into the page. */
+.admin-glass.admin-dark [class*="backdrop-blur-xl"][class*="bg-white/"] {
+  background-color: rgba(19, 19, 23, 0.72) !important;
+  background-image: none !important;
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05), 0 12px 28px -18px rgba(0, 0, 0, 0.8) !important;
+}
+.admin-glass.admin-dark [class*="bg-white/90"] {
+  background-color: rgba(26, 26, 31, 0.88) !important;
+}
+
+/* Sidebar active nav item — add a real left accent bar (like Linear/Vercel
+   dashboards) on top of the tinted-blue pill from the base rule above. */
+.admin-glass.admin-dark .admin-glass-sidebar [class*="bg-[#1a1a1a]"] {
+  position: relative;
+}
+.admin-glass.admin-dark .admin-glass-sidebar [class*="bg-[#1a1a1a]"]::before {
+  content: "";
+  position: absolute;
+  left: -2px;
+  top: 20%;
+  bottom: 20%;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--dm-accent);
+  box-shadow: 0 0 8px rgba(91, 155, 255, 0.7);
+}
+
+/* Sub-nav rail (nested children under an expanded section) */
+.admin-glass.admin-dark .admin-glass-sidebar [class*="border-l"] {
+  border-color: var(--dm-border) !important;
+}
+
+/* Primary buttons get a faint diagonal shine + brighter glow on hover,
+   reinforcing they're the premium "glass" action rather than a flat block. */
+.admin-glass.admin-dark .btn-liquid-dark {
+  position: relative;
+  overflow: hidden;
+}
+.admin-glass.admin-dark .btn-liquid-dark:hover {
+  filter: brightness(1.08);
+}
+
+/* Focus rings site-wide inside the admin get the brand-blue treatment
+   instead of the default browser blue, matching the input focus glow. */
+.admin-glass.admin-dark [class*="focus-visible:outline-[#458fff]"] {
+  outline-color: var(--dm-accent) !important;
+}
+
+/* Inline-SVG mini charts (revenue sparkline, visitor trend, etc.) hard-code
+   their colours as raw stroke/fill attributes rather than Tailwind classes,
+   so they need direct attribute selectors to stop reading as near-invisible
+   dark-grey-on-dark-grey lines. */
+.admin-glass.admin-dark svg [stroke="#e1e3e5"] { stroke: rgba(255, 255, 255, 0.10) !important; }
+.admin-glass.admin-dark svg [fill="#8c9196"],
+.admin-glass.admin-dark svg [fill="#6d7175"] { fill: var(--dm-text-faint) !important; }
+.admin-glass.admin-dark svg [fill="#fff"],
+.admin-glass.admin-dark svg [fill="#ffffff"] { fill: var(--dm-2) !important; }
+.admin-glass.admin-dark svg [stroke="#2c6ecb"] { stroke: var(--dm-accent-strong) !important; }
+.admin-glass.admin-dark svg [fill="#2c6ecb"] { fill: var(--dm-accent-strong) !important; }
+.admin-glass.admin-dark svg [fill="url(#revenueAreaFill)"] { opacity: 0.55; }
+
+/* Empty-state illustrations / icon badges (the soft grey circle behind an
+   icon on "no orders yet" style panels) read as a flat blob — give them a
+   touch of inset depth so they match the rest of the elevated theme. */
+.admin-glass.admin-dark [class*="rounded-full"][class*="bg-[#f1f1f1]"],
+.admin-glass.admin-dark [class*="rounded-full"][class*="bg-[#f6f6f7]"] {
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Checkboxes / radio accent colour so selection states stay on-brand. */
+.admin-glass.admin-dark input[type="checkbox"],
+.admin-glass.admin-dark input[type="radio"] {
+  accent-color: var(--dm-accent);
+}

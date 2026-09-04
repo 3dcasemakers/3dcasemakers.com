@@ -1,0 +1,40 @@
+{
+  "name": "3dcasemakers-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "vite build",
+    "prestart": "node scripts/generate-sitemap.mjs",
+    "dev": "vite --port=3000 --host=0.0.0.0",
+    "generate-sitemap": "node scripts/generate-sitemap.mjs",
+    "prebuild": "node scripts/generate-sitemap.mjs",
+    "build": "vite build",
+    "preview": "vite preview --port=3000",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.14",
+    "@types/node": "^22.14.0",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^6.0.4",
+    "autoprefixer": "^10.4.21",
+    "esbuild": "^0.28.1",
+    "exceljs": "^4.4.0",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
+    "lucide-react": "^0.546.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router": "^8.3.0",
+    "tailwindcss": "^4.1.14",
+    "typescript": "~5.8.2",
+    "vite": "^8.1.5",
+    "xlsx": "^0.18.5"
+  },
+  "overrides": {
+    "dompurify": "^3.4.13",
+    "nanoid": "^3.3.18"
+  }
+}

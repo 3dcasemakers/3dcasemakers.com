@@ -1,0 +1,71 @@
+Options -MultiViews
+RewriteEngine On
+
+# ── Force non-www canonical host (AIOSEO: "www and non-www versions not
+#    redirected to the same site"). 3dcasemakers.in is the canonical form
+#    used everywhere (canonical tag, sitemap, OG tags), so 301 www → apex.
+#    Must be first so it applies before any other rule below.
+RewriteCond %{HTTP_HOST} ^www\.3dcasemakers\.in$ [NC]
+RewriteRule ^(.*)$ https://3dcasemakers.in/$1 [R=301,L]
+
+# ── Force HTTPS too, just in case a plain-http request ever reaches here.
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP_HOST} ^(www\.)?3dcasemakers\.in$ [NC]
+RewriteRule ^(.*)$ https://3dcasemakers.in/$1 [R=301,L]
+
+# ── Link-preview bots (WhatsApp/Facebook/Instagram/Telegram/X/LinkedIn/
+#    Slack/Discord/Skype) don't run JS, so they never see the OG tags our
+#    React app sets at runtime. Detect them by User-Agent and send them to
+#    the backend's pre-rendered /share pages instead, which return static
+#    HTML with the correct og:image for that exact banner/product/collection.
+#    Everyone else (real visitors) falls through to the normal SPA below.
+RewriteCond %{HTTP_USER_AGENT} (facebookexternalhit|WhatsApp|Twitterbot|TelegramBot|LinkedInBot|Slackbot|Discordbot|SkypeUriPreview|Pinterest|redditbot|Applebot|Google-InspectionTool) [NC]
+RewriteCond %{REQUEST_URI} ^/product/([^/]+)/?$
+RewriteRule ^ https://api.3dcasemakers.in/share/product/%1 [R=302,L]
+
+RewriteCond %{HTTP_USER_AGENT} (facebookexternalhit|WhatsApp|Twitterbot|TelegramBot|LinkedInBot|Slackbot|Discordbot|SkypeUriPreview|Pinterest|redditbot|Applebot|Google-InspectionTool) [NC]
+RewriteCond %{REQUEST_URI} ^/collections/([^/]+)/?$
+RewriteRule ^ https://api.3dcasemakers.in/share/collections/%1 [R=302,L]
+
+RewriteCond %{HTTP_USER_AGENT} (facebookexternalhit|WhatsApp|Twitterbot|TelegramBot|LinkedInBot|Slackbot|Discordbot|SkypeUriPreview|Pinterest|redditbot|Applebot|Google-InspectionTool) [NC]
+RewriteCond %{REQUEST_URI} ^/$
+RewriteRule ^ https://api.3dcasemakers.in/share/home [R=302,L]
+
+# ── Generic SEO audit / crawl bots (Ahrefs, Semrush, Moz, Screaming Frog,
+#    SEOptimer, Ubersuggest, etc) don't run JS either, and unlike link-
+#    preview bots above they never "click through" — so instead of
+#    redirecting them we hand them a real, final content page with a
+#    proper H1, good heading structure and internal links, straight away.
+RewriteCond %{HTTP_USER_AGENT} (AhrefsBot|SemrushBot|MJ12bot|DotBot|SEOptimer|Screaming\ Frog|rogerbot|Ubersuggest|PetalBot|BLEXBot|SeznamBot|DataForSeoBot|serpstatbot|MozBot|Nimbostratus) [NC]
+RewriteCond %{REQUEST_URI} ^/$
+RewriteRule ^ https://api.3dcasemakers.in/share/crawl-home [R=302,L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [QSA,L]
+
+# ── Browser caching / "expires" headers (AIOSEO: "server is not using
+#    'expires' headers for images"). Long cache for hashed build assets
+#    and images, shorter cache for the HTML shell so deploys show up fast.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/jpg "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType image/x-icon "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(jpg|jpeg|png|webp|svg|ico|css|js|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>
