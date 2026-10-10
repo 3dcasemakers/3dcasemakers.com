@@ -1,0 +1,131 @@
+{
+  "fixtureMode": true,
+  "checks": [
+    {
+      "name": "Product 320px controls and explicit customization None preset",
+      "passed": true
+    },
+    {
+      "name": "Product 390px controls and explicit customization None preset",
+      "passed": true
+    },
+    {
+      "name": "Product 1024px controls and explicit customization None preset",
+      "passed": true
+    },
+    {
+      "name": "Out-of-stock products cannot be added or bought",
+      "passed": true
+    },
+    {
+      "name": "Gel plate add-on updates price, compare price and discount consistently",
+      "passed": true
+    },
+    {
+      "name": "Tag search matches preview/full results; Escape closes and restores focus",
+      "passed": true
+    },
+    {
+      "name": "Intentionally empty admin brand/model catalog does not restore default models",
+      "passed": true
+    },
+    {
+      "name": "Collection API failure does not claim missing collection; retry succeeds",
+      "passed": true
+    },
+    {
+      "name": "Collection product API failure reports unavailable catalog and recovers",
+      "passed": true
+    },
+    {
+      "name": "Product load failure is visible and retry succeeds",
+      "passed": true
+    },
+    {
+      "name": "Review load failure is visible and retry succeeds",
+      "passed": true
+    },
+    {
+      "name": "Pending upload blocks purchase; removed upload cannot overwrite replacement",
+      "passed": true
+    },
+    {
+      "name": "Third customization text resets when switching products",
+      "passed": true
+    },
+    {
+      "name": "Receipt uses access header; COD message is accurate; preview flag saves",
+      "passed": true
+    },
+    {
+      "name": "Rejected preview request reports failure without false success",
+      "passed": true
+    },
+    {
+      "name": "Unauthenticated receipt does not enable protected preview controls",
+      "passed": true
+    },
+    {
+      "name": "Wrong phone is rejected; verified tracking stores receipt access and opens details",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "requestCount": 154,
+  "accessRequests": [
+    {
+      "pathname": "/api/orders/STC0001",
+      "method": "GET",
+      "body": {},
+      "access": "receipt-token"
+    },
+    {
+      "pathname": "/api/orders/STC0001",
+      "method": "GET",
+      "body": {},
+      "access": "receipt-token"
+    },
+    {
+      "pathname": "/api/orders/STC0001/request-preview",
+      "method": "PUT",
+      "body": {},
+      "access": "receipt-token"
+    },
+    {
+      "pathname": "/api/orders/STC0001",
+      "method": "GET",
+      "body": {},
+      "access": "receipt-token"
+    },
+    {
+      "pathname": "/api/orders/STC0001",
+      "method": "GET",
+      "body": {},
+      "access": "receipt-token"
+    },
+    {
+      "pathname": "/api/orders/STC0001/request-preview",
+      "method": "PUT",
+      "body": {},
+      "access": "receipt-token"
+    },
+    {
+      "pathname": "/api/orders/STC0001",
+      "method": "GET",
+      "body": {},
+      "access": "receipt-token"
+    },
+    {
+      "pathname": "/api/orders/STC0001",
+      "method": "GET",
+      "body": {},
+      "access": "receipt-token"
+    },
+    {
+      "pathname": "/api/orders/STC0001",
+      "method": "GET",
+      "body": {},
+      "access": "receipt-token"
+    }
+  ]
+}
