@@ -1,0 +1,65 @@
+{
+  "fixtureMode": true,
+  "checks": [
+    "Maintenance switch saves only changed key",
+    "Failed save remains editable and retries successfully",
+    "All eight Settings categories render at mobile and desktop widths",
+    "Announcement edits and empty list persist without restoring defaults",
+    "Empty announcement hidden and one Meta PageView per route",
+    "Cart buttons target only selected custom design",
+    "Checkout stores receipt token, optional delivery details and trusted purchase event",
+    "Optional analytics failure cannot undo a saved checkout or retain the cart",
+    "Sales and customer Excel downloads round-trip with both worksheets",
+    "Unauthenticated dashboard redirects to login"
+  ],
+  "errors": [],
+  "mutations": [
+    {
+      "path": "/api/settings/merge",
+      "body": {
+        "maintenanceMode": true
+      }
+    },
+    {
+      "path": "/api/settings/merge",
+      "body": {
+        "maintenanceMode": false
+      }
+    },
+    {
+      "path": "/api/settings/merge",
+      "body": {
+        "maintenanceMode": true
+      }
+    },
+    {
+      "path": "/api/settings/merge",
+      "body": {
+        "maintenanceMode": false
+      }
+    },
+    {
+      "path": "/api/settings/merge",
+      "body": {
+        "announcementMessages": [
+          "Verified announcement",
+          "Free Shipping Across Tamil Nadu"
+        ]
+      }
+    },
+    {
+      "path": "/api/settings/merge",
+      "body": {
+        "announcementMessages": [
+          "Free Shipping Across Tamil Nadu"
+        ]
+      }
+    },
+    {
+      "path": "/api/settings/merge",
+      "body": {
+        "announcementMessages": []
+      }
+    }
+  ]
+}

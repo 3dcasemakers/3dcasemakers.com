@@ -1,0 +1,23 @@
+const assert = require("node:assert/strict");
+const { withSoftCornerDefaults } = require("../src/utils/cornerSettings");
+
+const fresh = withSoftCornerDefaults();
+assert.equal(fresh.uiSoftCards, true);
+assert.equal(fresh.uiSoftRadius, 16);
+const legacy = { uiSoftButtons: false, uiSoftCards: false, uiSoftRadius: 0, uiBannerCorners: "hard", themeButtonShape: "square", uiPageBg: "#ffffff", shopName: "My Shop" };
+const migrated = withSoftCornerDefaults(legacy);
+assert.equal(migrated.uiSoftButtons, true);
+assert.equal(migrated.uiSoftCards, true);
+assert.equal(migrated.uiBannerCorners, "hard");
+assert.equal(migrated.themeButtonShape, "rounded");
+assert.equal(migrated.uiPageBg, legacy.uiPageBg);
+assert.equal(migrated.shopName, legacy.shopName);
+assert.equal(legacy.uiSoftCards, false);
+const customized = { ...migrated, uiSoftCards: false, uiCardCorners: "hard" };
+assert.equal(withSoftCornerDefaults(customized), customized);
+assert.equal(withSoftCornerDefaults(customized).uiSoftCards, false);
+const olderRounded = withSoftCornerDefaults({ ...customized, uiBannerCorners: "rounded", uiCollectionBannerCorners: "rounded" });
+assert.equal(olderRounded.uiBannerCorners, "hard");
+assert.equal(olderRounded.uiCollectionBannerCorners, "hard");
+assert.equal(olderRounded.uiSoftCards, false);
+console.log("Corner settings: 14 regression checks passed.");
